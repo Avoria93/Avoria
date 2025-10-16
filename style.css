@@ -1,0 +1,22 @@
+
+/* Responsive style for calendar */
+body { font-family: Arial, sans-serif; direction: rtl; text-align: center; padding: 10px; margin:0; }
+h1 { color: #2E8B57; font-size: 1.4rem; margin: 8px 0; }
+#calendar { max-width: 980px; margin: 0 auto; }
+#calendar-controls { margin: 10px; display:flex; justify-content:center; gap:10px; align-items:center; flex-wrap:wrap; }
+#calendar-controls button { padding:8px 12px; font-size:1rem; }
+.weekdays { display:grid; grid-template-columns: repeat(7, 1fr); gap:4px; margin-top:6px; }
+.weekday { font-weight:600; padding:6px 4px; }
+.grid { display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; }
+.day { border:1px solid #ccc; padding:6px; min-height:70px; box-sizing:border-box; background:#fff; border-radius:6px; display:flex; flex-direction:column; align-items:flex-end; }
+.day.empty { background:transparent; border:none; }
+.date { font-weight:bold; margin-bottom:6px; }
+.slot { margin:4px 0; padding:6px 8px; border-radius:6px; cursor:pointer; width:100%; box-sizing:border-box; text-align:center; font-size:0.95rem; }
+.slot.available { background-color:#90EE90; color:#000; }
+.slot.booked { background-color:#FF7F7F; color:#000; }
+@media (max-width:600px){
+  .day { min-height:90px; padding:8px; }
+  .weekday { font-size:0.85rem; }
+  h1 { font-size:1.1rem; }
+  #calendar-controls button { padding:6px 10px; font-size:0.95rem; }
+}

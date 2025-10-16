@@ -1,0 +1,9 @@
+body { font-family: Arial, sans-serif; direction: rtl; text-align: center; }
+h1 { color: #2E8B57; }
+#calendar, #admin-calendar { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+.day { border: 1px solid #ccc; padding: 5px; margin: 2px; width: 120px; height: 100px; box-sizing: border-box; }
+.day .date { font-weight: bold; margin-bottom: 5px; }
+.slot { margin: 2px 0; padding: 2px; border-radius: 3px; cursor: pointer; }
+.slot.available { background-color: #90EE90; } 
+.slot.booked { background-color: #FF7F7F; } 
+#calendar-controls { margin: 10px; }
