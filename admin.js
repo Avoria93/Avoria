@@ -1,6 +1,5 @@
-// لوحة تحكم الأدمن - شغالة 100%
+// لوحة تحكم الأدمن - تحديد أيام محجوزة يدوياً
 
-// تسجيل الدخول
 function login() {
   const pwd = document.getElementById('password').value;
   if (pwd === 'Zain1993') {
@@ -19,7 +18,10 @@ let currentYear = currentDate.getFullYear();
 let currentMonth = currentDate.getMonth();
 const monthNames = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
-// عرض اسم الشهر
+// تخزين الأيام المحجوزة مؤقتاً (بدون قاعدة بيانات)
+let reservedDays = {};
+
+// تحديث اسم الشهر بالأعلى
 function updateMonthLabel() {
   const label = document.getElementById('month-year');
   if (label) label.textContent = monthNames[currentMonth] + ' ' + currentYear;
@@ -41,12 +43,28 @@ function generateAdminCalendar(year = currentYear, month = currentMonth) {
   for (let i = 0; i < firstDay; i++) html += '<td></td>';
 
   for (let d = 1; d <= daysInMonth; d++) {
-    html += `<td>${d}</td>`;
+    const dateKey = `${year}-${month}-${d}`;
+    const isReserved = reservedDays[dateKey];
+    const bg = isReserved ? 'background-color: #f55; color: white;' : '';
+    html += `<td style="${bg}" onclick="toggleReserve('${dateKey}', this)">${d}</td>`;
     if ((d + firstDay) % 7 === 0) html += '</tr><tr>';
   }
 
   html += '</tr></table>';
   calendar.innerHTML = html;
+}
+
+// تغيير حالة اليوم عند النقر
+function toggleReserve(dateKey, cell) {
+  if (reservedDays[dateKey]) {
+    delete reservedDays[dateKey];
+    cell.style.backgroundColor = '';
+    cell.style.color = '';
+  } else {
+    reservedDays[dateKey] = true;
+    cell.style.backgroundColor = '#f55';
+    cell.style.color = 'white';
+  }
 }
 
 // التنقل بين الأشهر
