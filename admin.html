@@ -8,14 +8,24 @@
 <body>
 <h1>لوحة إدارة شالي أفوريا</h1>
 <div id="admin-login">
-<label>كلمة المرور:</label>
-<input type="password" id="password">
-<button onclick="login()">دخول</button>
+  <label>كلمة المرور:</label>
+  <input type="password" id="password">
+  <button onclick="login()">دخول</button>
 </div>
+
 <div id="admin-panel" style="display:none;">
-<p>التقويم:</p>
-<div id="admin-calendar"></div>
+  <p>التقويم:</p>
+
+  <!-- إضافت أزرار التنقل والشهر/السنة -->
+  <div id="calendar-controls">
+    <button onclick="prevMonth()">السابق</button>
+    <span id="month-year"></span>
+    <button onclick="nextMonth()">التالي</button>
+  </div>
+
+  <div id="admin-calendar"></div>
 </div>
+
 <script type="module" src="admin.js"></script>
 </body>
 </html>
