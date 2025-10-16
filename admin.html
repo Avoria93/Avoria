@@ -1,29 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<title>لوحة إدارة شالي أفوريا</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin - AvoriaShalyh</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>لوحة إدارة شالي أفوريا</h1>
-<div id="admin-login">
+<header>
+  <h1>لوحة إدارة - AvoriaShalyh</h1>
+</header>
+
+<div id="loginPanel" class="centered">
   <label>كلمة المرور:</label>
-  <input type="password" id="password">
-  <button onclick="login()">دخول</button>
+  <input type="password" id="adminPwd" />
+  <button id="loginBtn">دخول</button>
 </div>
 
-<div id="admin-panel" style="display:none;">
-  <p>التقويم:</p>
-
-  <!-- إضافت أزرار التنقل والشهر/السنة -->
-  <div id="calendar-controls">
-    <button onclick="prevMonth()">السابق</button>
-    <span id="month-year"></span>
-    <button onclick="nextMonth()">التالي</button>
+<div id="adminArea" style="display:none;">
+  <div id="controls">
+    <button id="prevBtnA">&lt;</button>
+    <select id="monthSelectA"></select>
+    <select id="yearSelectA"></select>
+    <button id="nextBtnA">&gt;</button>
   </div>
-
-  <div id="admin-calendar"></div>
+  <div id="calendarA"></div>
 </div>
 
 <script type="module" src="admin.js"></script>
