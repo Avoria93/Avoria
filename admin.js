@@ -1,9 +1,9 @@
-// admin.js
 
-const firebaseConfig = {"apiKey": "AIzaSyCMnrduDRpUjhFw5XxMdrR4u...7:web:070b9514c322df959c6c3a", "measurementId": "G-RP38CK8YNT"};
+// admin.js - admin interface
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+const firebaseConfig = {"apiKey": "AIzaSyCMnrduDRpUjhFw5XxMdrR4uvHa14OrAnM", "authDomain": "avoriashalyh.firebaseapp.com", "projectId": "avoriashalyh", "storageBucket": "avoriashalyh.firebasestorage.app", "messagingSenderId": "77862184527", "appId": "1:77862184527:web:070b9514c322df959c6c3a", "measurementId": "G-RP38CK8YNT"};
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -11,142 +11,119 @@ const db = getFirestore(app);
 const monthNames = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 const weekDays = ['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
 
-let currentDate = new Date();
-let currentYear = currentDate.getFullYear();
-let currentMonth = currentDate.getMonth(); // 0-based
+const START_YEAR = 2025;
+const END_YEAR = 2030;
+let months = [];
+for(let y=START_YEAR;y<=END_YEAR;y++) for(let m=0;m<12;m++) months.push({year:y, month:m});
 
-let unsubscribeSnapshot = null;
+let currentIndex = months.findIndex(x=> x.year=== (new Date()).getFullYear() && x.month===(new Date()).getMonth());
+if(currentIndex===-1) currentIndex = 0;
 
-function monthDocId(year, month){
-    const m = String(month+1).padStart(2,'0');
-    return `${year}-${m}`;
+const pwd = "Zain1993";
+const loginPanel = document.getElementById('loginPanel');
+const adminArea = document.getElementById('adminArea');
+const loginBtn = document.getElementById('loginBtn');
+const adminCalendar = document.getElementById('calendarA');
+const monthSelect = document.getElementById('monthSelectA');
+const yearSelect = document.getElementById('yearSelectA');
+const prevBtn = document.getElementById('prevBtnA');
+const nextBtn = document.getElementById('nextBtnA');
+
+function monthDocId(year, month){ const mm = String(month+1).padStart(2,'0'); return `${year}-${mm}`; }
+
+loginBtn.onclick = ()=>{
+  const v = document.getElementById('adminPwd').value;
+  if(v===pwd){
+    loginPanel.style.display='none';
+    adminArea.style.display='block';
+    populateSelectors(months[currentIndex].month, months[currentIndex].year);
+    renderMonth(currentIndex);
+  } else {
+    alert('كلمة المرور خاطئة');
+  }
+};
+
+function populateSelectors(selMonth, selYear){
+  monthSelect.innerHTML=''; yearSelect.innerHTML='';
+  const years = Array.from(new Set(months.map(m=>m.year)));
+  years.forEach(y=>{ const opt = document.createElement('option'); opt.value=y; opt.text=y; if(y===selYear) opt.selected=true; yearSelect.appendChild(opt); });
+  monthNames.forEach((mn, idx)=>{ const opt = document.createElement('option'); opt.value=idx; opt.text=mn; if(idx===selMonth) opt.selected=true; monthSelect.appendChild(opt); });
 }
 
-function login(){
-    const pwd = document.getElementById('password').value;
-    if(pwd === 'Zain1993'){
-        document.getElementById('admin-login').style.display = 'none';
-        document.getElementById('admin-panel').style.display = 'block';
-        generateAdminCalendar(currentYear, currentMonth);
-    } else {
-        alert('كلمة المرور خاطئة');
-    }
-}
-
-async function ensureMonthDoc(year, month){
-    const id = monthDocId(year, month);
-    const docRef = doc(db, 'bookings', id);
-    const snap = await getDoc(docRef);
+async function ensureMonthDocAll(){
+  for(const it of months){
+    const id = monthDocId(it.year, it.month);
+    const ref = doc(db, 'bookings', id);
+    const snap = await getDoc(ref);
     if(!snap.exists()){
-        const lastDay = new Date(year, month+1, 0).getDate();
-        const data = { };
-        for(let i=1;i<=lastDay;i++){
-            data[i.toString()] = { 'صباحي': false, 'مسائي': false, 'مبيت': false };
-        }
-        await setDoc(docRef, data);
+      const lastDay = new Date(it.year, it.month+1, 0).getDate();
+      const payload = {};
+      for(let d=1;d<=lastDay;d++) payload[d] = { 'صباحي': false, 'مسائي': false, 'مبيت': false };
+      await setDoc(ref, payload);
     }
+  }
 }
 
-export function generateAdminCalendar(year, month){
-    const adminDiv = document.getElementById('admin-calendar');
-    adminDiv.innerHTML = '';
+let unsubscribe = null;
 
-    // show month-year header
-    const monthYear = document.getElementById('month-year');
-    if(monthYear) monthYear.innerText = monthNames[month] + ' ' + year;
-
-    const lastDay = new Date(year, month+1, 0).getDate();
-
-    for(let i=1;i<=lastDay;i++){
-        const dayDiv = document.createElement('div');
-        dayDiv.className = 'day';
-        const dayName = weekDays[new Date(year, month, i).getDay()];
-        const dateDiv = document.createElement('div');
-        dateDiv.className = 'date';
-        dateDiv.innerText = dayName + ' ' + i;
-        dayDiv.appendChild(dateDiv);
-
-        ['صباحي','مسائي','مبيت'].forEach(slotName=>{
-            const slotDiv = document.createElement('div');
-            slotDiv.className = 'slot available';
-            slotDiv.setAttribute('data-day', i);
-            slotDiv.setAttribute('data-slot', slotName);
-            slotDiv.innerText = slotName;
-            slotDiv.onclick = async ()=>{
-                // toggle booked state in firestore
-                const day = slotDiv.getAttribute('data-day');
-                const slot = slotDiv.getAttribute('data-slot');
-                const id = monthDocId(year, month);
-                const docRef = doc(db, 'bookings', id);
-                const snap = await getDoc(docRef);
-                if(!snap.exists()){
-                    await ensureMonthDoc(year, month);
-                }
-                const data = snap.exists() ? snap.data() : {};
-                const currentVal = (data && data[day] && data[day][slot]) ? true : false;
-                // update only the specific field
-                const updateObj = {};
-                updateObj[`${day}.${slot}`] = !currentVal;
-                await updateDoc(docRef, updateObj).catch(async (e)=>{
-                    // if update fails because doc didn't exist, create then update
-                    await ensureMonthDoc(year, month);
-                    await updateDoc(docRef, updateObj);
-                });
-                // UI will reflect via onSnapshot listener
-            };
-            dayDiv.appendChild(slotDiv);
-        });
-
-        adminDiv.appendChild(dayDiv);
-    }
-
-    // set up realtime listener for this month
-    if(unsubscribeSnapshot) unsubscribeSnapshot();
-    const docRef = doc(db, 'bookings', monthDocId(year,month));
-    unsubscribeSnapshot = onSnapshot(docRef, (docSnap)=>{
-        // reset all to available first
-        document.querySelectorAll('#admin-calendar .slot').forEach(el=>{
-            el.classList.remove('booked');
-            el.classList.add('available');
-        });
-        if(docSnap.exists()){
-            const data = docSnap.data();
-            for(const [day, slots] of Object.entries(data || {})){
-                for(const [slotName, val] of Object.entries(slots || {})){
-                    if(val){
-                        const sel = `#admin-calendar .slot[data-day="${day}"][data-slot="${slotName}"]`;
-                        const el = document.querySelector(sel);
-                        if(el){
-                            el.classList.remove('available');
-                            el.classList.add('booked');
-                        }
-                    }
-                }
-            }
-        }
+async function renderMonth(index){
+  const {year, month} = months[index];
+  monthSelect.value = month; yearSelect.value = year;
+  adminCalendar.innerHTML='';
+  const lastDay = new Date(year, month+1, 0).getDate();
+  for(let d=1;d<=lastDay;d++){
+    const dayDiv = document.createElement('div'); dayDiv.className='day';
+    const dateLine = document.createElement('div'); dateLine.className='date-line';
+    const dayName = weekDays[new Date(year, month, d).getDay()];
+    dateLine.innerText = `${dayName} ${d} - ${monthNames[month]}`;
+    dayDiv.appendChild(dateLine);
+    ['صباحي','مسائي','مبيت'].forEach(slot=>{
+      const slotDiv = document.createElement('div');
+      slotDiv.className='slot available'; slotDiv.dataset.day=d; slotDiv.dataset.slot=slot; slotDiv.innerText=slot;
+      slotDiv.onclick = async ()=>{
+        // toggle
+        const id = monthDocId(year, month);
+        const ref = doc(db, 'bookings', id);
+        const snap = await getDoc(ref);
+        if(!snap.exists()) return;
+        const data = snap.data() || {};
+        const cur = data[d] && data[d][slot] ? true : false;
+        const upd = {};
+        upd[`${d}.${slot}`] = !cur;
+        await updateDoc(ref, upd);
+      };
+      dayDiv.appendChild(slotDiv);
     });
+    adminCalendar.appendChild(dayDiv);
+  }
+  if(unsubscribe) unsubscribe();
+  const ref = doc(db, 'bookings', monthDocId(year, month));
+  unsubscribe = onSnapshot(ref, (snap)=>{
+    // reset
+    document.querySelectorAll('#calendarA .slot').forEach(el=>{ el.classList.remove('booked'); el.classList.add('available'); });
+    if(!snap.exists()) return;
+    const data = snap.data();
+    for(const [day, slots] of Object.entries(data || {})){
+      for(const [sname, val] of Object.entries(slots || {})){
+        const selector = `#calendarA .slot[data-day="${day}"][data-slot="${sname}"]`;
+        const el = document.querySelector(selector);
+        if(el){
+          if(val) { el.classList.remove('available'); el.classList.add('booked'); }
+          else { el.classList.remove('booked'); el.classList.add('available'); }
+        }
+      }
+    }
+  });
 }
 
-// navigation
-function prevMonth(){
-    if(currentMonth === 0){ currentMonth = 11; currentYear -=1; }
-    else currentMonth -=1;
-    generateAdminCalendar(currentYear, currentMonth);
-}
+prevBtn.onclick = ()=>{ if(currentIndex>0){ currentIndex--; renderMonth(currentIndex); } };
+nextBtn.onclick = ()=>{ if(currentIndex<months.length-1){ currentIndex++; renderMonth(currentIndex); } };
+monthSelect.onchange = ()=>{ const m = parseInt(monthSelect.value,10); const y = parseInt(yearSelect.value,10); const idx = months.findIndex(x=>x.year===y && x.month===m); if(idx!==-1){ currentIndex = idx; renderMonth(currentIndex);} };
+yearSelect.onchange = ()=>{ monthSelect.onchange(); };
 
-function nextMonth(){
-    if(currentMonth === 11){ currentMonth = 0; currentYear +=1; }
-    else currentMonth +=1;
-    generateAdminCalendar(currentYear, currentMonth);
-}
+(async ()=>{
+  await ensureMonthDocAll();
+  populateSelectors(months[currentIndex].month, months[currentIndex].year);
+  renderMonth(currentIndex);
+})();
 
-// expose to window for button onclicks
-window.prevMonth = prevMonth;
-window.nextMonth = nextMonth;
-window.login = login;
-window.generateAdminCalendar = generateAdminCalendar;
-
-// optional: if you want auto-show current month before login remove this block.
-// document.addEventListener('DOMContentLoaded', ()=>{
-//     generateAdminCalendar(currentYear, currentMonth);
-// });
