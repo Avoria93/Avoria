@@ -7,5 +7,3 @@ h1 { color: #2E8B57; }
 .slot.available { background-color: #90EE90; } 
 .slot.booked { background-color: #FF7F7F; } 
 #calendar-controls { margin: 10px; }
-/* تحسين العرض على الموبايل */
-body{max-width:100%;overflow-x:hidden;}
