@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>صفحة الأدمن</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: sans-serif; padding: 12px; box-sizing: border-box; }
+    #admin-login, #admin-panel { max-width: 900px; margin: 0 auto; }
+    input#password { padding: 10px; width: calc(100% - 22px); max-width: 300px; }
+    button { padding: 8px 12px; margin: 4px; cursor: pointer; }
+    #calendar-controls { display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; }
+    #month-year { font-weight:700; min-width:120px; text-align:center; }
+    #admin-calendar table { width:100%; max-width:700px; border-collapse: collapse; }
+    #admin-calendar th, #admin-calendar td { border:1px solid #ddd; padding:6px; text-align:center; }
+    @media (max-width:600px) {
+      #admin-calendar th, #admin-calendar td { padding:8px; font-size:14px; }
+      #month-year { font-size:16px; }
+      input#password { width:100%; max-width:100%; }
+    }
+  </style>
+</head>
+<body dir="rtl">
+
+  <div id="admin-login" style="text-align:center; margin-top:30px;">
+    <h2>تسجيل دخول الأدمن</h2>
+    <input type="password" id="password" placeholder="كلمة المرور">
+    <div style="margin-top:10px;">
+      <button onclick="login()">دخول</button>
+    </div>
+  </div>
+
+  <div id="admin-panel" style="display:none; margin-top:20px;">
+    <h2 style="text-align:center;">لوحة تحكم الأدمن</h2>
+
+    <div id="calendar-controls" style="margin:12px 0;">
+      <button onclick="prevMonth()">السابق</button>
+      <span id="month-year"></span>
+      <button onclick="nextMonth()">التالي</button>
+    </div>
+
+    <div id="admin-calendar"></div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
