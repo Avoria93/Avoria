@@ -1,26 +1,18 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AvoriaShalyh - تقويم حجوزات شالي افوريا</title>
+<meta charset="UTF-8">
+<title>تقويم حجوزات شالي أفوريا</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <h1>تقويم حجوزات شالي افوريا</h1>
-  <div class="site-name">AvoriaShalyh</div>
-</header>
-<main>
-  <div id="controls">
-    <button id="prevBtn">&lt;</button>
-    <select id="monthSelect"></select>
-    <select id="yearSelect"></select>
-    <button id="nextBtn">&gt;</button>
-  </div>
-  <div id="calendar"></div>
-</main>
-
+<h1>تقويم حجوزات شالي أفوريا</h1>
+<div id="calendar-controls">
+  <button onclick="prevMonth()">السابق</button>
+  <span id="month-year"></span>
+  <button onclick="nextMonth()">التالي</button>
+</div>
+<div id="calendar"></div>
 <script type="module" src="script.js"></script>
 </body>
 </html>
